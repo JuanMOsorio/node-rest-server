@@ -3,8 +3,6 @@ const app = express();
 
 const User = require('../models/user-model');
 
-
-
 app.get('/user', (req, res) => {
 	res.json('Get User');
 });
