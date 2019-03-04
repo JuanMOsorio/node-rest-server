@@ -8,7 +8,29 @@ const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
 app.get('/user', (req, res) => {
-	res.json('Get User');
+
+	let start = req.query.start || 0;
+	start = Number(start);
+	let limit = req.query.limit || 5;
+	limit = Number(limit);
+
+	User.find({})
+		.skip(start)
+		.limit(limit)
+		.exec((err, users) => {
+			// Manejando el error.
+			if (err) {
+				return res.status(400).json({
+					ok: false,
+					err: err
+				});
+			}
+
+			res.json({
+				ok: true,
+				users
+			});
+		});
 });
 
 app.post('/user', (req, res) => {
