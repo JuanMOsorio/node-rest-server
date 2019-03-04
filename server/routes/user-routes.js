@@ -5,6 +5,7 @@ const User = require('../models/user-model');
 
 // Encriptando password.
 const bcrypt = require('bcrypt');
+const _ = require('underscore');
 
 app.get('/user', (req, res) => {
 	res.json('Get User');
@@ -41,9 +42,17 @@ app.post('/user', (req, res) => {
 
 app.put('/user/:id', (req, res) => {
 	let id = req.params.id;
-	let body = req.body;
 
-	User.findByIdAndUpdate(id, body, { new: true }, (err, userDB) => {
+	// Validaciones con underscore.
+	let body = _.pick(req.body, [
+		'name',
+		'email',
+		'img',
+		'role',
+		'status'
+	]);
+
+	User.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, userDB) => {
 		if (err) {
 			return res.status(400).json({
 				ok: false,
