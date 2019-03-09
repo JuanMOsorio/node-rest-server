@@ -7,7 +7,10 @@ const User = require('../models/user-model');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
-app.get('/user', (req, res) => {
+// Importando Autorización
+const { checkToken } = require('../middlewares/autentication');
+
+app.get('/user', checkToken,(req, res) => {
 
 	let start = req.query.start || 0;
 	start = Number(start);
