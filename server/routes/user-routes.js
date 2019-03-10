@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
 // Importando Autorización
-const { checkToken } = require('../middlewares/autentication');
+const { checkToken, checkAdminRole } = require('../middlewares/autentication');
 
 app.get('/user', checkToken,(req, res) => {
 
@@ -41,7 +41,7 @@ app.get('/user', checkToken,(req, res) => {
 		});
 });
 
-app.post('/user', (req, res) => {
+app.post('/user', [checkToken, checkAdminRole], (req, res) => {
 	let body = req.body;
 
 	let user = new User({
@@ -71,7 +71,7 @@ app.post('/user', (req, res) => {
 	});
 });
 
-app.put('/user/:id', (req, res) => {
+app.put('/user/:id', [checkToken, checkAdminRole], (req, res) => {
 	let id = req.params.id;
 
 	// Validaciones con underscore.
@@ -99,7 +99,7 @@ app.put('/user/:id', (req, res) => {
 	
 });
 
-app.delete('/user/:id', (req, res) => {
+app.delete('/user/:id', [checkToken, checkAdminRole], (req, res) => {
 	let id = req.params.id;
 
 	let changeStatus = {
