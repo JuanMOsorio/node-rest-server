@@ -3,6 +3,9 @@ require('./config/config');
 const express = require('express');
 const mongoose = require('mongoose');
 
+// Importar el path para la ruta del localhost de public
+const path = require('path');
+
 const app = express();
 const bodyParser = require('body-parser');
 
@@ -13,6 +16,9 @@ app.use(bodyParser.json());
 
 // Usando Rutas de index.js.
 app.use(require('./routes'));
+
+// Habilitar la carpeta
+app.use(express.static(path.resolve(__dirname,'../public')));
 
 // Conexion con mongo db
 mongoose.connect(process.env.URLDB,
