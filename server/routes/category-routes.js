@@ -16,6 +16,8 @@ let app = express();
 app.get('/category', (req, res) => {
 
 	Category.find({})
+		.sort('description')
+		.populate('user', 'name email')
 		.exec((err, categories) => {
 		if (err) {
 			return res.status(500).json({
