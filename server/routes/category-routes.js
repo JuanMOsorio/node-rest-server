@@ -15,9 +15,10 @@ let app = express();
 //=============================
 app.get('/category', (req, res) => {
 
-	Category.find({}, (err, categories) => {
+	Category.find({})
+		.exec((err, categories) => {
 		if (err) {
-			return res.status(400).json({
+			return res.status(500).json({
 				ok: false,
 				err
 			});
@@ -38,17 +39,26 @@ app.get('/category/:id', (req, res) => {
 
 	let id = req.params.id;
 	// Category.findById()
-	Category.findById(id, (err, category) => {
+	Category.findById(id, (err, categoryDB) => {
 		if (err) {
-			return res.status(400).json({
+			return res.status(500).json({
 				ok: false,
 				err
 			});
 		}
 
+		if (!categoryDB) {
+			return res.status(500).json({
+				ok: false,
+				err: {
+					message: 'El id es incorrecto'
+				}
+			});
+		}
+
 		res.json({
 			ok: true,
-			category
+			category: categoryDB
 		});
 	});
 });
@@ -64,12 +74,19 @@ app.post('/category', checkToken, (req, res) => {
 	let body = req.body;
 
 	let category = new Category({
-		name: body.name,
-		description: body.description
+		description: body.description,
+		user: req.user._id
 	});
 
 	category.save((err, categoryDB) => {
 		if (err) {
+			return res.status(500).json({
+				ok: false,
+				err
+			});
+		}
+
+		if (!categoryDB) {
 			return res.status(400).json({
 				ok: false,
 				err
@@ -91,9 +108,19 @@ app.put('/category/:id', (req, res) => {
 	let id = req.params.id;
 	let body = req.body;
 
-	Category.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, categoryDB) => {
+	let desCategory = { description: body.description };
+	let configs = { new: true, runValidators: true };
+
+	Category.findByIdAndUpdate(id, desCategory, configs, (err, categoryDB) => {
 		if (err) {
-			res.status(400).json({
+			return res.status(500).json({
+				ok: false,
+				err
+			});
+		}
+
+		if (!categoryDB) {
+			return res.status(400).json({
 				ok: false,
 				err
 			});
@@ -137,7 +164,7 @@ app.delete('/category/:id', [checkToken, checkAdminRole], (req, res) => {
 
 		res.json({
 			ok: true,
-			category: categoryDB
+			message: 'Categoria borrada'
 		});
 	});
 });
