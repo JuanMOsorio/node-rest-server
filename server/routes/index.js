@@ -6,6 +6,7 @@ const app = express();
 app.use(require('./user-routes'));
 app.use(require('./category-routes'));
 app.use(require('./product-routes'));
+app.use(require('./uploads-routes'));
 
 // Ruta de Login.
 app.use(require('./login'));
