@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const User = require('../models/user-model');
+const Product = require('../models/products-model');
 
 app.use(fileupload({ useTempFile: true }));
 
@@ -66,7 +67,13 @@ app.put('/upload/:type/:id', (req, res) => {
 		}
 
 		// La imagen se ha cargado al sistema.
-		userImage(id, res, fileName);
+
+		if (type === 'users') {
+			userImage(id, res, fileName);
+		} 
+		if (type === 'products') {
+			productImage(id, res, fileName);
+		}
 		
 	});
 
@@ -74,9 +81,10 @@ app.put('/upload/:type/:id', (req, res) => {
 
 function userImage(id, res, fileName) {
 	User.findById(id, (err, userDB) => {
-		deleteFile(fileName, 'users');
 
 		if (err) {
+			deleteFile(fileName, 'users');
+
 			return res.status(500).json({
 				ok: false,
 				err
@@ -112,6 +120,47 @@ function userImage(id, res, fileName) {
 
 }
 
+function productImage(id, res, fileName) {
+	Product.findById(id, (err, productDB) => {
+
+		if (err) {
+			deleteFile(fileName, 'products');
+
+			return res.status(500).json({
+				ok: false,
+				err
+			});
+		}
+
+		if (!productDB) {
+			deleteFile(fileName, 'products');
+
+			return res.status(400).json({
+				ok: false,
+				err: {
+					messsage: 'El producto no exite!'
+				}
+			});
+		}
+
+		deleteFile(productDB.img, 'products');
+
+		// Cambiando la imagen del usuario.
+		productDB.img = fileName;
+
+		// Guardando usuario.
+		productDB.save((err, productUpdated) => {
+			res.json({
+				ok: true,
+				product: productUpdated,
+				img: fileName
+			});
+		});
+
+	});
+
+}
+
 function deleteFile(fileName, type) {
 	// image actual del usario.
 	let pathImage = path.resolve(__dirname, `../../uploads/${ type }/${ fileName }`);
@@ -119,10 +168,6 @@ function deleteFile(fileName, type) {
 		// Elimina la actual imagen.
 		fs.unlinkSync(pathImage);
 	}
-}
-
-function imageProduct() {
-
 }
 
 module.exports = app;
