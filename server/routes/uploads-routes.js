@@ -2,9 +2,14 @@ const express = require('express');
 const fileupload =require('express-fileupload');
 const app = express();
 
+const User = require('../models/user-model');
+
 app.use(fileupload({ useTempFile: true }));
 
-app.put('/upload', (req, res) => {
+app.put('/upload/:type/:id', (req, res) => {
+
+	let type = req.params.type;
+	let id = req.params.id;
 
 	// Si no hay archivos
 	if (!req.files) {
@@ -12,6 +17,18 @@ app.put('/upload', (req, res) => {
 			ok: false,
 			err: {
 				message: 'No hay archivos para subir.'
+			}
+		});
+	}
+
+	// Validar tipo de archivo.
+	let validTypes = ['products', 'users'];
+	if (validTypes.indexOf(type) < 0) {
+		return res.status(400).json({
+			ok: false,
+			err: {
+				messsage: `Los tipos permitidos son ${ validTypes.join(', ') }`,
+				type
 			}
 		});
 	}
@@ -34,8 +51,11 @@ app.put('/upload', (req, res) => {
 		});
 	}
 
+	// Cambiando el nombre a archivo.
+	let fileName = `${ id }-${ new Date().getMilliseconds() }.${ extention }`;
+
 	// Ruta de donde se almecenra el archivo.
-	file.mv(`uploads/${ file.name }`, (err) => {
+	file.mv(`uploads/${ type }/${ fileName }`, (err) => {
 		if (err) {
 			return res.status(500).json({
 				ok: false,
