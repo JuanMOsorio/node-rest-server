@@ -16,10 +16,26 @@ app.put('/upload', (req, res) => {
 		});
 	}
 
+	// Obtenemos el archivo.
 	let file = req.files.file;
+	// Obterner la extencion.
+	let segmentedName = file.name.split('.');
+	let extention = segmentedName[segmentedName.length - 1];
+	// Extenciones permitadas
+	let validExt = ['png', 'jpg', 'gif', 'jpeg'];
+
+	if (validExt.indexOf(extention) < 0) {
+		return res.status(400).json({
+			ok: false,
+			err: {
+				messsage: `Las extenciones validas son ${ validExt.join(', ') }`,
+				ext: extention
+			}
+		});
+	}
 
 	// Ruta de donde se almecenra el archivo.
-	file.mv('uploads/filename.jpg', (err) => {
+	file.mv(`uploads/${ file.name }`, (err) => {
 		if (err) {
 			return res.status(500).json({
 				ok: false,
@@ -30,7 +46,7 @@ app.put('/upload', (req, res) => {
 		// Subiendo el archivo.
 		res.json({
 			ok: true,
-			messsage: 'El archivo se subio currectamente!!'
+			messsage: 'El archivo se subio currectamente!!',
 		});
 	});
 
