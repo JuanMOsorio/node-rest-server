@@ -1,6 +1,8 @@
 const express = require('express');
 const fileupload =require('express-fileupload');
 const app = express();
+const fs = require('fs');
+const path = require('path');
 
 const User = require('../models/user-model');
 
@@ -72,6 +74,8 @@ app.put('/upload/:type/:id', (req, res) => {
 
 function userImage(id, res, fileName) {
 	User.findById(id, (err, userDB) => {
+		deleteFile(fileName, 'users');
+
 		if (err) {
 			return res.status(500).json({
 				ok: false,
@@ -80,6 +84,8 @@ function userImage(id, res, fileName) {
 		}
 
 		if (!userDB) {
+			deleteFile(fileName, 'users');
+
 			return res.status(400).json({
 				ok: false,
 				err: {
@@ -87,6 +93,8 @@ function userImage(id, res, fileName) {
 				}
 			});
 		}
+
+		deleteFile(userDB.img, 'users');
 
 		// Cambiando la imagen del usuario.
 		userDB.img = fileName;
@@ -102,6 +110,15 @@ function userImage(id, res, fileName) {
 
 	});
 
+}
+
+function deleteFile(fileName, type) {
+	// image actual del usario.
+	let pathImage = path.resolve(__dirname, `../../uploads/${ type }/${ fileName }`);
+	if (fs.existsSync(pathImage)) {
+		// Elimina la actual imagen.
+		fs.unlinkSync(pathImage);
+	}
 }
 
 function imageProduct() {
