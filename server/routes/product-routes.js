@@ -81,6 +81,34 @@ app.get('/product/:id', checkToken, (req, res) => {
 });
 
 //=============================
+// Buscar productos.
+//=============================
+app.get('/product/search/:term', checkToken, (req, res) => {
+
+	let term = req.params.term;
+
+	// Expreción regular
+	let regexp = new RegExp(term, 'i');
+
+	Product.find({ name: regexp })
+		.populate('category', 'description name')
+		.exec((err, products) => {
+			if (err) {
+				return res.status(500).json({
+					ok: false,
+					err
+				});
+			}
+
+			res.json({
+				ok: true,
+				products
+			})
+		});
+});
+
+
+//=============================
 // Crear un nuevo producto.
 //=============================
 app.post('/product', checkToken, (req, res) => {
