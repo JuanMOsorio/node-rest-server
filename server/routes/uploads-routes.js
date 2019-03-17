@@ -63,13 +63,49 @@ app.put('/upload/:type/:id', (req, res) => {
 			});
 		}
 
-		// Subiendo el archivo.
-		res.json({
-			ok: true,
-			messsage: 'El archivo se subio currectamente!!',
-		});
+		// La imagen se ha cargado al sistema.
+		userImage(id, res, fileName);
+		
 	});
 
 });
+
+function userImage(id, res, fileName) {
+	User.findById(id, (err, userDB) => {
+		if (err) {
+			return res.status(500).json({
+				ok: false,
+				err
+			});
+		}
+
+		if (!userDB) {
+			return res.status(400).json({
+				ok: false,
+				err: {
+					messsage: 'El usario no exite!'
+				}
+			});
+		}
+
+		// Cambiando la imagen del usuario.
+		userDB.img = fileName;
+
+		// Guardando usuario.
+		userDB.save((err, userUpdated) => {
+			res.json({
+				ok: true,
+				user: userUpdated,
+				img: fileName
+			});
+		});
+
+	});
+
+}
+
+function imageProduct() {
+
+}
 
 module.exports = app;
