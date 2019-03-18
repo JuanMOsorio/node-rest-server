@@ -2,17 +2,27 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+const { checkToken } = require('../middlewares/autentication');
+
 const app = express();
 
-app.get('/image/:type/:img', (req, res) => {
+// CARGAR LAS IMAGENS AL SERVICCIO REST.
+app.get('/image/:type/:img', checkToken, (req, res) => {
 	let type = req.params.type;
 	let img = req.params.img;
 
-	let pathImg = `./uploads/${ type }/${ img }`;
+	// El path de las imagenes.
+	let pathImage = path.resolve(__dirname, `../../uploads/${ type }/${ img }`);
 
-	let noImagePath = path.resolve(__dirname, '../assets/no-image.jpg');
+	if (fs.existsSync(pathImage)) {
+		// Retorna la imagen.
+		res.sendFile(pathImage);
+	} else {
+		// Si no existe retorna una imagen por defecto.
+		let noImagePath = path.resolve(__dirname, '../assets/no-image.jpg');
+		res.sendFile(noImagePath);
+	}
 
-	res.sendFile(noImagePath);
 });
 
 module.exports = app;
