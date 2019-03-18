@@ -2,12 +2,12 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-const { checkToken } = require('../middlewares/autentication');
+const { checkTokenImg } = require('../middlewares/autentication');
 
 const app = express();
 
 // CARGAR LAS IMAGENS AL SERVICCIO REST.
-app.get('/image/:type/:img', checkToken, (req, res) => {
+app.get('/image/:type/:img', checkTokenImg, (req, res) => {
 	let type = req.params.type;
 	let img = req.params.img;
 
